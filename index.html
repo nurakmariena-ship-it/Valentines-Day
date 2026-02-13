@@ -46,16 +46,8 @@ body::before{
   box-shadow:0 25px 60px rgba(0,0,0,0.4);
 }
 
-h1{
-  margin:0 0 10px 0;
-  color:#111;
-}
-
-p{
-  color:#333;
-  font-size:15px;
-  margin-bottom:20px;
-}
+h1{ margin:0 0 10px 0; color:#111; }
+.puzzle-sub{ color:#333; font-size:15px; margin:0 0 20px 0; }
 
 .grid{
   display:grid;
@@ -70,6 +62,7 @@ p{
   border-radius:15px;
   cursor:pointer;
   border:1px solid #ddd;
+  background:#f5f5f5;
 }
 
 .tile img{
@@ -77,6 +70,7 @@ p{
   height:100%;
   object-fit:cover;
   transition:0.3s;
+  display:block;
 }
 
 .letter{
@@ -89,21 +83,13 @@ p{
   font-weight:bold;
   color:rgba(0,0,0,0);
   transition:0.3s;
+  text-shadow:0 10px 30px rgba(0,0,0,0.6);
 }
 
-.tile.revealed img{
-  filter:brightness(0.6);
-}
+.tile.revealed img{ filter:brightness(0.6); }
+.tile.revealed .letter{ color:#ffffff; }
 
-.tile.revealed .letter{
-  color:#ffffff;
-}
-
-.row{
-  display:flex;
-  gap:15px;
-  margin-top:20px;
-}
+.row{ display:flex; gap:15px; margin-top:20px; }
 
 input{
   flex:1;
@@ -125,20 +111,13 @@ button{
   cursor:pointer;
 }
 
-button:hover{
-  background:#333;
-}
+button:hover{ background:#333; }
 
-.status{
-  margin-top:15px;
-  font-weight:bold;
-}
-
+.status{ margin-top:15px; font-weight:bold; }
 .good{ color:green; }
 .bad{ color:red; }
 
 /* BOOK */
-
 #bookWrap{
   display:none;
   height:100vh;
@@ -150,10 +129,7 @@ button:hover{
   z-index:1;
 }
 
-#book{
-  width:1040px;
-  height:720px;
-}
+#book{ width:1040px; height:720px; }
 
 .page{
   background:#ffffff;
@@ -175,17 +151,16 @@ button:hover{
   color:#111;
 }
 
-.page.image,
-.page.cover{
+.page.image, .page.cover{
   padding:0;
   background:#000;
 }
 
-.page.image img,
-.page.cover img{
+.page.image img, .page.cover img{
   width:100%;
   height:100%;
   object-fit:cover;
+  display:block;
 }
 </style>
 </head>
@@ -196,7 +171,7 @@ button:hover{
 <div id="puzzleScreen" class="center">
   <div class="card">
     <h1>Before you read your Valentine’s gift…</h1>
-    <p>Tap each photo to reveal a letter. Then type the 4-letter word to unlock your prize.</p>
+    <p class="puzzle-sub">Tap each photo to reveal a letter. Then type the 4-letter word to unlock your prize.</p>
 
     <div class="grid">
       <div class="tile"><img src="assets/zurich.jpg" alt="Zurich"><div class="letter">H</div></div>
@@ -219,7 +194,11 @@ button:hover{
   <div id="book"></div>
 </div>
 
+<!-- Music (starts after unlock) -->
+<audio id="bgMusic" src="assets/music.mp3" loop></audio>
+
 <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
 const tiles = document.querySelectorAll(".tile");
@@ -229,6 +208,7 @@ const unlockBtn = document.getElementById("unlockBtn");
 const puzzleScreen = document.getElementById("puzzleScreen");
 const bookWrap = document.getElementById("bookWrap");
 const bookEl = document.getElementById("book");
+const music = document.getElementById("bgMusic");
 
 tiles.forEach(tile=>{
   tile.addEventListener("click",()=>{
@@ -237,18 +217,30 @@ tiles.forEach(tile=>{
 });
 
 unlockBtn.addEventListener("click",()=>{
-  const code = input.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,4);
+  const code = (input.value || "").toUpperCase().replace(/[^A-Z]/g,"").slice(0,4);
+
   if(code !== "HOME"){
     status.textContent="Try again.";
     status.className="status bad";
     return;
   }
+
   status.textContent="Correct. Your gift awaits.";
   status.className="status good";
 
-  puzzleScreen.style.display="none";
-  bookWrap.style.display="flex";
-  initBook();
+  // Confetti burst
+  confetti({ particleCount: 220, spread: 120, origin: { y: 0.65 } });
+
+  // Start music (browser allows because this is a button click)
+  music.volume = 0.5;
+  music.play().catch(()=>{});
+
+  // Swap to book after a short moment
+  setTimeout(()=>{
+    puzzleScreen.style.display="none";
+    bookWrap.style.display="flex";
+    initBook();
+  }, 1200);
 });
 
 function escapeHtml(str){
@@ -272,10 +264,19 @@ function coverPage(src){
 
 function initBook(){
   const pages = [
+    // Title / Cover
     coverPage("assets/cover.png"),
-    imagePage("assets/p0.png","Page 0"),
+
+    // Page 0
+    imagePage("assets/p0.png", "Page 0"),
+
+    // Page 1
     textPage("This story is based on the beginning of our love and the inspiration of your painting"),
-    imagePage("assets/p2.png","Page 2"),
+
+    // Page 2
+    imagePage("assets/p2.png", "Page 2"),
+
+    // Page 3
     textPage(
 `Robin's heart had always been a
 compass pointing toward the unknown.
@@ -291,7 +292,11 @@ of the East. Little did he know that his
 long journey was leading him toward a
 tiny island in the Andaman Sea.`
     ),
-    imagePage("assets/p4.png","Page 4"),
+
+    // Page 4
+    imagePage("assets/p4.png", "Page 4"),
+
+    // Page 5
     textPage(
 `After weeks of wandering, Robin finally 
 landed in Langkawi. He had been
@@ -306,7 +311,11 @@ from the ocean. He was arriving just in
 time to turn a digital connection into a
 living, breathing reality.`
     ),
-    imagePage("assets/p6.png","Page 6"),
+
+    // Page 6
+    imagePage("assets/p6.png", "Page 6"),
+
+    // Page 7
     textPage(
 `They finally met at a cozy beach bar
 where the air was thick with the scent
@@ -321,7 +330,11 @@ and Malaysia simply vanished. In that
 moment, the world felt very small and
 very bright.`
     ),
-    imagePage("assets/p8.png","Page 8"),
+
+    // Page 8
+    imagePage("assets/p8.png", "Page 8"),
+
+    // Page 9
     textPage(
 `As the party faded, they wandered onto 
 the sand under a canopy of oversized,
@@ -335,7 +348,11 @@ sharing secrets and dreams until the
 stars began to pale against the soft
 lavender of the approaching dawn.`
     ),
-    imagePage("assets/p10.png","Page 10"),
+
+    // Page 10
+    imagePage("assets/p10.png", "Page 10"),
+
+    // Page 11
     textPage(
 `When the sun finally rose, they shared a
 quiet breakfast by the sea. In a moment
@@ -345,11 +362,15 @@ another, their arms forming a perfect
 heart against the horizon. In this
 magical space, the scenery shifted-the
 snowy mountains of Zürich and the
-tropical hills of Langkawi merged into a
+tropical hills of Langkawi merged into
 single, beautiful world, just like in the
 paintings Robin loved to create.`
     ),
-    imagePage("assets/p12.png","Page 12"),
+
+    // Page 12
+    imagePage("assets/p12.png", "Page 12"),
+
+    // Page 13
     textPage(
 `Eventually, the excitement of the long 
 night caught up with them. Exhausted
@@ -362,7 +383,11 @@ sleep. Beside her, her phone flickered
 one last time before the battery died,
 leaving her silent to the world outside.`
     ),
-    imagePage("assets/p14.png","Page 14"),
+
+    // Page 14
+    imagePage("assets/p14.png", "Page 14"),
+
+    // Page 15
     textPage(
 `While Akma slept, the morning
 progressed toward a planned birthday
@@ -377,7 +402,11 @@ concern. Najwa stood nearby, her dark
 hair accented by a white frangipani
 flower, feeling the same growing dread.`
     ),
-    imagePage("assets/p16.png","Page 16"),
+
+    // Page 16
+    imagePage("assets/p16.png", "Page 16"),
+
+    // Page 17
     textPage(
 `Najwa was not one to wait in silence.
 Remembering a friend said that Akma had 
@@ -391,11 +420,19 @@ When the receptionist answered,
 Najwa urgently asked if a colorful
 motorscooter was parked out front.`
     ),
-    imagePage("assets/p18.png","Page 18"),
+
+    // Page 18
+    imagePage("assets/p18.png", "Page 18"),
+
+    // Page 19
     textPage(
-`Inside the hostel, a kind receptionist named Zaki walked down the quiet hallway and gave a firm, gentle knock on the door. When it opened, Zaki looked at Akma, who was rubbing the sleep from her eyes. "Your sisters are looking for you," Zaki said with a knowing, helpful smile. "They called the desk to make sure you were safe." Akma’s eyes went wide as she realized how long she had been asleep.`
+`Inside the hostel, a kind receptionist walked down the quiet hallway and gave a firm, gentle knock on the door. When it opened, Zaki looked at Akma, who was rubbing the sleep from her eyes. "Your sisters are looking for you," receptionist said with a knowing, helpful smile. "They called the desk to make sure you were safe." Akma’s eyes went wide as she realized how long she had been asleep.`
     ),
-    imagePage("assets/p20.png","Page 20"),
+
+    // Page 20
+    imagePage("assets/p20.png", "Page 20"),
+
+    // Page 21
     textPage(
 `There was no time to lose. They hurried
 outside where the tropical sun was now
@@ -409,11 +446,15 @@ riding together toward her family and
 their future. This is how their love
 story begins.`
     ),
-    imagePage("assets/p22.png","Page 22"),
+
+    // Page 22
+    imagePage("assets/p22.png", "Page 22"),
+
+    // Page 23
     textPage("Happy valentines day baby, always remember that I love you")
   ];
 
-  bookEl.innerHTML = pages.map(p=>`<div class="my-page">${p}</div>`).join("");
+  bookEl.innerHTML = pages.map(p => `<div class="my-page">${p}</div>`).join("");
 
   const pageFlip = new St.PageFlip(bookEl,{
     width:520,
