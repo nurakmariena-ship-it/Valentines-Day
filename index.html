@@ -1,108 +1,282 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Love Book</title>
+<meta charset="utf-8">
+<title>Valentine’s Gift</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body{
-      margin:0;
-      background:#0f1115;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-    .wrap{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-    }
-    #book{
-      width: min(980px, 96vw);
-      height: min(680px, 80vh);
-    }
-    .page{
-      background:#fff;
-      box-sizing:border-box;
-      height:100%;
-      width:100%;
-      padding:38px 40px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      color:#111;
-    }
-    .page.text p{
-      font-size:18px;
-      line-height:1.55;
-      margin:0;
-      white-space:pre-line; /* keep your line breaks */
-    }
-    .page.image, .page.cover{
-      padding:0;
-      background:#000;
-    }
-    .page.image img, .page.cover img{
-      width:100%;
-      height:100%;
-      object-fit:cover; /* change to 'contain' if you want no cropping */
-      display:block;
-    }
-  </style>
+<style>
+html, body { height:100%; }
+
+body{
+  margin:0;
+  font-family: Georgia, serif;
+  background: url("assets/heart.gif") repeat;
+  background-size: 260px;
+  overflow:hidden;
+}
+
+/* Dark overlay */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:0;
+  pointer-events:none;
+}
+
+.center{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:30px;
+  box-sizing:border-box;
+  position:relative;
+  z-index:1;
+}
+
+/* PUZZLE CARD */
+.card{
+  width:1000px;
+  background:#ffffff;
+  border-radius:20px;
+  padding:30px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.4);
+}
+
+h1{
+  margin:0 0 10px 0;
+  color:#111;
+}
+
+p{
+  color:#333;
+  font-size:15px;
+  margin-bottom:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+}
+
+.tile{
+  position:relative;
+  height:200px;
+  overflow:hidden;
+  border-radius:15px;
+  cursor:pointer;
+  border:1px solid #ddd;
+}
+
+.tile img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:0.3s;
+}
+
+.letter{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:70px;
+  font-weight:bold;
+  color:rgba(0,0,0,0);
+  transition:0.3s;
+}
+
+.tile.revealed img{
+  filter:brightness(0.6);
+}
+
+.tile.revealed .letter{
+  color:#ffffff;
+}
+
+.row{
+  display:flex;
+  gap:15px;
+  margin-top:20px;
+}
+
+input{
+  flex:1;
+  padding:12px;
+  font-size:18px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  text-transform:uppercase;
+  color:#111;
+}
+
+button{
+  padding:12px 20px;
+  background:#111;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#333;
+}
+
+.status{
+  margin-top:15px;
+  font-weight:bold;
+}
+
+.good{ color:green; }
+.bad{ color:red; }
+
+/* BOOK */
+
+#bookWrap{
+  display:none;
+  height:100vh;
+  align-items:center;
+  justify-content:center;
+  padding:30px;
+  box-sizing:border-box;
+  position:relative;
+  z-index:1;
+}
+
+#book{
+  width:1040px;
+  height:720px;
+}
+
+.page{
+  background:#ffffff;
+  width:100%;
+  height:100%;
+  padding:60px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#111;
+}
+
+.page.text p{
+  font-size:20px;
+  line-height:1.7;
+  margin:0;
+  white-space:pre-line;
+  color:#111;
+}
+
+.page.image,
+.page.cover{
+  padding:0;
+  background:#000;
+}
+
+.page.image img,
+.page.cover img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div id="book"></div>
+
+<!-- PUZZLE -->
+<div id="puzzleScreen" class="center">
+  <div class="card">
+    <h1>Before you read your Valentine’s gift…</h1>
+    <p>Tap each photo to reveal a letter. Then type the 4-letter word to unlock your prize.</p>
+
+    <div class="grid">
+      <div class="tile"><img src="assets/zurich.jpg" alt="Zurich"><div class="letter">H</div></div>
+      <div class="tile"><img src="assets/langkawi.jpg" alt="Langkawi"><div class="letter">O</div></div>
+      <div class="tile"><img src="assets/us1.jpg" alt="Us 1"><div class="letter">M</div></div>
+      <div class="tile"><img src="assets/us2.jpg" alt="Us 2"><div class="letter">E</div></div>
+    </div>
+
+    <div class="row">
+      <input id="codeInput" maxlength="4" placeholder="Type the word">
+      <button id="unlockBtn">Unlock</button>
+    </div>
+
+    <div id="status" class="status"></div>
   </div>
+</div>
 
-  <!-- PageFlip library (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+<!-- BOOK -->
+<div id="bookWrap" class="center">
+  <div id="book"></div>
+</div>
 
-  <script>
-    const bookEl = document.getElementById("book");
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
+<script>
+const tiles = document.querySelectorAll(".tile");
+const input = document.getElementById("codeInput");
+const status = document.getElementById("status");
+const unlockBtn = document.getElementById("unlockBtn");
+const puzzleScreen = document.getElementById("puzzleScreen");
+const bookWrap = document.getElementById("bookWrap");
+const bookEl = document.getElementById("book");
 
-    function textPage(text){
-      return `
-        <div class="page text">
-          <p>${escapeHtml(text)}</p>
-        </div>
-      `;
-    }
+tiles.forEach(tile=>{
+  tile.addEventListener("click",()=>{
+    tile.classList.toggle("revealed");
+  });
+});
 
-    function imagePage(src, alt="Illustration"){
-      return `
-        <div class="page image">
-          <img src="${src}" alt="${escapeHtml(alt)}" />
-        </div>
-      `;
-    }
+unlockBtn.addEventListener("click",()=>{
+  const code = input.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,4);
+  if(code !== "HOME"){
+    status.textContent="Try again.";
+    status.className="status bad";
+    return;
+  }
+  status.textContent="Correct. Your gift awaits.";
+  status.className="status good";
 
-    function coverPage(src){
-      return `
-        <div class="page cover">
-          <img src="${src}" alt="Cover" />
-        </div>
-      `;
-    }
+  puzzleScreen.style.display="none";
+  bookWrap.style.display="flex";
+  initBook();
+});
 
-    // Your pages (cover + page 0..23)
-    const pages = [
-      coverPage("assets/cover.png"),
-      imagePage("assets/p0.png", "Page 0"),
-      textPage("This story is based on the beginning of our love and the inspiration of your painting"),
-      imagePage("assets/p2.png", "Page 2"),
-      textPage(
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function textPage(text){
+  return `<div class="page text"><p>${escapeHtml(text)}</p></div>`;
+}
+function imagePage(src, alt){
+  return `<div class="page image"><img src="${src}" alt="${escapeHtml(alt||'')}"></div>`;
+}
+function coverPage(src){
+  return `<div class="page cover"><img src="${src}" alt="Cover"></div>`;
+}
+
+function initBook(){
+  const pages = [
+    coverPage("assets/cover.png"),
+    imagePage("assets/p0.png","Page 0"),
+    textPage("This story is based on the beginning of our love and the inspiration of your painting"),
+    imagePage("assets/p2.png","Page 2"),
+    textPage(
 `Robin's heart had always been a
 compass pointing toward the unknown.
 From the snowy, jagged peaks of
@@ -116,10 +290,10 @@ as he moved through the vibrant colors
 of the East. Little did he know that his
 long journey was leading him toward a
 tiny island in the Andaman Sea.`
-      ),
-      imagePage("assets/p4.png", "Page 4"),
-      textPage(
-`After weeks of wandering, Robin finally
+    ),
+    imagePage("assets/p4.png","Page 4"),
+    textPage(
+`After weeks of wandering, Robin finally 
 landed in Langkawi. He had been
 talking to a girl named Akma on
 Tinder, their messages bridging the gap
@@ -131,9 +305,9 @@ emerald mountains rising like jewels
 from the ocean. He was arriving just in
 time to turn a digital connection into a
 living, breathing reality.`
-      ),
-      imagePage("assets/p6.png", "Page 6"),
-      textPage(
+    ),
+    imagePage("assets/p6.png","Page 6"),
+    textPage(
 `They finally met at a cozy beach bar
 where the air was thick with the scent
 of salt and the rhythm of the waves.
@@ -146,10 +320,10 @@ thousands of miles between Switzerland
 and Malaysia simply vanished. In that
 moment, the world felt very small and
 very bright.`
-      ),
-      imagePage("assets/p8.png", "Page 8"),
-      textPage(
-`As the party faded, they wandered onto
+    ),
+    imagePage("assets/p8.png","Page 8"),
+    textPage(
+`As the party faded, they wandered onto 
 the sand under a canopy of oversized,
 glowing stars. The night was theirs.
 They plunged into the dark, velvety
@@ -160,9 +334,9 @@ moonlight and talking on the shore,
 sharing secrets and dreams until the
 stars began to pale against the soft
 lavender of the approaching dawn.`
-      ),
-      imagePage("assets/p10.png", "Page 10"),
-      textPage(
+    ),
+    imagePage("assets/p10.png","Page 10"),
+    textPage(
 `When the sun finally rose, they shared a
 quiet breakfast by the sea. In a moment
 of pure, whimsical joy, they stood on
@@ -174,10 +348,10 @@ snowy mountains of Zürich and the
 tropical hills of Langkawi merged into a
 single, beautiful world, just like in the
 paintings Robin loved to create.`
-      ),
-      imagePage("assets/p12.png", "Page 12"),
-      textPage(
-`Eventually, the excitement of the long
+    ),
+    imagePage("assets/p12.png","Page 12"),
+    textPage(
+`Eventually, the excitement of the long 
 night caught up with them. Exhausted
 and happy, Akma dropped Robin off at
 his hostel. Once inside, the cool air and
@@ -187,9 +361,9 @@ moment and fell into a deep, peaceful
 sleep. Beside her, her phone flickered
 one last time before the battery died,
 leaving her silent to the world outside.`
-      ),
-      imagePage("assets/p14.png", "Page 14"),
-      textPage(
+    ),
+    imagePage("assets/p14.png","Page 14"),
+    textPage(
 `While Akma slept, the morning
 progressed toward a planned birthday
 breakfast at her family home. Her
@@ -202,11 +376,11 @@ aloud, her brow furrowed with sisterly
 concern. Najwa stood nearby, her dark
 hair accented by a white frangipani
 flower, feeling the same growing dread.`
-      ),
-      imagePage("assets/p16.png", "Page 16"),
-      textPage(
+    ),
+    imagePage("assets/p16.png","Page 16"),
+    textPage(
 `Najwa was not one to wait in silence.
-Remembering a friend said that Akma had
+Remembering a friend said that Akma had 
 mentioned a traveler staying near the
 historic Makan Mahsuri, she quickly
 searched for the hostel's number. She
@@ -216,13 +390,13 @@ dialed the number with a steady hand.
 When the receptionist answered,
 Najwa urgently asked if a colorful
 motorscooter was parked out front.`
-      ),
-      imagePage("assets/p18.png", "Page 18"),
-      textPage(
+    ),
+    imagePage("assets/p18.png","Page 18"),
+    textPage(
 `Inside the hostel, a kind receptionist named Zaki walked down the quiet hallway and gave a firm, gentle knock on the door. When it opened, Zaki looked at Akma, who was rubbing the sleep from her eyes. "Your sisters are looking for you," Zaki said with a knowing, helpful smile. "They called the desk to make sure you were safe." Akma’s eyes went wide as she realized how long she had been asleep.`
-      ),
-      imagePage("assets/p20.png", "Page 20"),
-      textPage(
+    ),
+    imagePage("assets/p20.png","Page 20"),
+    textPage(
 `There was no time to lose. They hurried
 outside where the tropical sun was now
 high in the sky. Robin hopped onto the
@@ -234,25 +408,26 @@ palm trees and traditional houses,
 riding together toward her family and
 their future. This is how their love
 story begins.`
-      ),
-      imagePage("assets/p22.png", "Page 22"),
-      textPage("Happy valentines day baby, always remember that I love you")
-    ];
+    ),
+    imagePage("assets/p22.png","Page 22"),
+    textPage("Happy valentines day baby, always remember that I love you")
+  ];
 
-    // Render
-    bookEl.innerHTML = pages.map(p => `<div class="my-page">${p}</div>`).join("");
+  bookEl.innerHTML = pages.map(p=>`<div class="my-page">${p}</div>`).join("");
 
-    // Init
-    const pageFlip = new St.PageFlip(bookEl, {
-      width: 480,
-      height: 640,
-      size: "stretch",
-      showCover: true,
-      maxShadowOpacity: 0.35,
-      mobileScrollSupport: true
-    });
+  const pageFlip = new St.PageFlip(bookEl,{
+    width:520,
+    height:720,
+    size:"stretch",
+    showCover:true,
+    usePortrait:false,
+    singlePage:false,
+    maxShadowOpacity:0.35
+  });
 
-    pageFlip.loadFromHTML(document.querySelectorAll(".my-page"));
-  </script>
+  pageFlip.loadFromHTML(document.querySelectorAll(".my-page"));
+}
+</script>
+
 </body>
 </html>
